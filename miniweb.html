@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>mini web dennis</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  
+
+</head>
+<body>
+
+<div class="jumbotron text-center">
+  <h1>Bienvenido a mi miniweb</h1>
+  <p>Aquí podras obtener informacion acerca de tus repositorios de gitHub</p> 
+</div>
+  
+<div class="container">
+	<div class="form-group">
+      <label for="usr">Usuario de gitHub:</label>
+      <input type="text" class="form-control" id="usr-textbox">
+    </div>
+	<button type="button" class="btn btn-warning btn-block" id="btn-repos">
+	 <span class="glyphicon glyphicon-search"></span> Muestra los repositorios
+	 </button>
+  <table class="table table-striped" id="tabla-datos">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Nº de <span class="glyphicon glyphicon-star-empty"></span></th>
+      </tr>
+    </thead>
+    <tbody>
+	
+    </tbody>
+  </table>
+    
+</div>
+
+  
+  
+    <script>
+        $(document).ready(function() {
+            $('#btn-repos').click(function() {
+                var usuario = $('#usr-textbox').val();
+                
+                if (usuario) {
+                    $.ajax({//peticion AJAX para obtener la info de los repos
+                        url: 'https://api.github.com/users/' + usuario + '/repos',
+                        type: 'GET',
+                        success: function(repos) {
+                            $('#tabla-datos tbody').empty();//para limpiar la tabla cuando le damos al boton
+
+                            
+                            repos.forEach(function(repo) {//Intoducir todos los datos deseados dentro de la tabla
+                                $.ajax({
+                                    url: `https://api.github.com/users/${repo.owner.login}`,
+                                    type: 'GET',
+                                    success: function(user) {
+                                        $('#tabla-datos tbody').append(`
+                                            <tr>
+                                                <td>${repo.name}</td>
+                                                <td>${repo.description || 'No hay descripción'}</td>
+                                                <td>${repo.stargazers_count}</td>
+                                            </tr>
+                                        `);
+                                    }
+                                });
+                            });
+                        },
+                        error: function() {
+                            alert('Usuario de gitHub no encontrado');
+                        }
+                    });
+                } else {
+                    alert('Intoduce algun nombre de usuario');
+                }
+            });
+        });
+    </script>
+    
+
+
+</body>
+</html>
